@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Server } from "socket.io";
+import cors from "cors";
+
 import __dirname from "./utils.js";
 import productRouter from "./routes/products.routes.js";
 import cartRouter from "./routes/carts.routes.js";
@@ -11,7 +13,6 @@ import viewsRouter from "./routes/views.routes.js";
 import sessionsRouter from "./routes/sessions.routes.js";
 import userViewRouter from "./routes/users.views.routes.js";
 import messageDao from "./daos/dbManager/message.dao.js";
-import cors from "cors";
 
 const app = express();
 const PORT = 8080;
@@ -19,12 +20,11 @@ const mongoURL = "mongodb+srv://marianobotto92:47pjMQKnnwIQOect@clustercoder.81u
 
 // CORS Options
 const corsOptions = {
-  origin: 'http://localhost:8080', // Reemplaza con tu URL permitida
+  origin: 'http://localhost:8080',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
 };
-
 app.use(cors(corsOptions));
 
 // Configuración de Session
@@ -57,6 +57,23 @@ const httpServer = app.listen(PORT, () => {
 
 // Configuración de Socket.IO
 const io = new Server(httpServer);
+io.on('connection', (socket) => {
+  console.log("A user connected");
+
+  socket.on('disconnect', () => {
+    console.log("A user disconnected");
+  });
+
+  socket.on('chat message', async (data) => {
+    try {
+      await messageDao.createMessage(data.user, data.content);
+      io.emit('chat message', data);
+    } catch (error) {
+      console.error(error);
+      socket.emit('error', { error: 'Error in chat message event' });
+    }
+  });
+});
 
 // Middleware para parsear JSON y URL-encoded
 app.use(express.json());
@@ -81,32 +98,12 @@ const hbs = exphbs.create({
     }
   }
 });
-
 app.engine("hbs", hbs.engine);
 app.set("view engine", "hbs");
 app.set("views", `${__dirname}/views`);
 
 // Configuración de archivos estáticos
 app.use(express.static(`${__dirname}/public`));
-
-// Configuración de Socket.IO para chat
-io.on('connection', (socket) => {
-  console.log("A user connected");
-
-  socket.on('disconnect', () => {
-    console.log("A user disconnected");
-  });
-
-  socket.on('chat message', async (data) => {
-    try {
-      await messageDao.createMessage(data.user, data.content);
-      io.emit('chat message', data);
-    } catch (error) {
-      console.error(error);
-      socket.emit('error', { error: 'Error in chat message event' });
-    }
-  });
-});
 
 // Rutas
 app.use("/api/products", productRouter);

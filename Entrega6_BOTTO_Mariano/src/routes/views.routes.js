@@ -56,18 +56,6 @@ router.get("/logout", (req, res) => {
     })
 })
 
-router.get("/login", (req, res) => {
-    const { username, password } = req.query
-
-    if(username !== 'Mariano' || password !== '12345'){
-        return res.status(401).send('Login failed, check your credentials')
-    }else{
-        req.session.user = username
-        req.session.admin = true
-        res.send('Login Succesfull')
-    }
-})
-
 router.get("/products", async (req, res) => {
     const { limit, page, query, sort } = req.query
     const products = await productDao.getProducts(limit, page, query, sort)
@@ -86,17 +74,17 @@ router.get("/products", async (req, res) => {
 })
 
 //Middleare auth
-function auth (req, res, next){
-    if (req.session.user === 'Mariano' && req.session.admin){
-        return next()
-    } else {
-        return res.status(403).send('Usuario no autorizado para ingresar a este recurso.')
-    }
-}
+// function auth (req, res, next){
+//     if (req.session.user === 'Mariano' && req.session.admin){
+//         return next()
+//     } else {
+//         return res.status(403).send('Usuario no autorizado para ingresar a este recurso.')
+//     }
+// }
 
-router.get("/private", auth, (req, res) => {
-    res.send('Si estas viendo esto es porque estas autorizado')
-})
+// router.get("/private", auth, (req, res) => {
+//     res.send('Si estas viendo esto es porque estas autorizado')
+// })
 
 router.get("/products/add", (req, res) => {
     res.render("createProduct.hbs")
