@@ -1,10 +1,13 @@
 import passport from "passport";
 import passportLocal from "passport-local";
 import GitHubStrategy from "passport-github2";
+import jwtStrategy from "passport-jwt";
 import userModel from "../models/user.model.js";
-import { createHash, isValidPassword } from "../utils.js";
+import { createHash, isValidPassword, PRIVATE_KEY } from "../utils.js";
 
 const localStrategy = passportLocal.Strategy;
+const JWTStrategy = jwtStrategy.Strategy;
+const extractJWT = jwtStrategy.ExtractJwt;
 
 const initializePassport = () => {
   passport.use('github', new GitHubStrategy(
@@ -44,7 +47,7 @@ const initializePassport = () => {
   passport.use('register', new localStrategy(
     { passReqToCallback: true, usernameField: 'email' },
     async (req, username, password, done) => {
-      const {first_name, last_name, email, age} = req.body 
+      const {first_name, last_name, email, age, role} = req.body 
       try {
         const exist = await userModel.findOne({ email });
         if (exist) {
@@ -59,7 +62,10 @@ const initializePassport = () => {
           last_name,
           email,
           age,
-          password: hashedPassword
+          password: hashedPassword,
+          cart: [],
+          loggedBy: 'form',
+          role
         }
 
         const result = await userModel.create(user);
@@ -70,22 +76,16 @@ const initializePassport = () => {
     }
   ));
 
-  passport.use('login', new localStrategy(
-    { passReqToCallback: true, usernameField: 'email' },
-    async (req, username, password, done) => {
+  passport.use('jwt', new JWTStrategy(
+    {
+      jwtFromRequest: extractJWT.fromExtractors([cookieExtractor]),
+      secretOrKey: PRIVATE_KEY
+    }, async (jwt_payload, done) => {
+      console.log("Entrando a passport strategy con JWT");
       try {
-        const user = await userModel.findOne({ email: username });
-        console.log("User found:");
-        console.log(user);
-        if (!user) {
-          console.warn("User doesn't exists with username: " + username);
-          return done(null, false);
-        }
-        if (!isValidPassword(user, password)) {
-          console.warn("Invalid credentials for user: " + username);
-          return done(null, false);
-        }
-        return done(null, user);
+        console.log("JWT obtenido del Payload");
+        console.log(jwt_payload);
+        return done(null, jwt_payload.user);
       } catch (error) {
         return done(error);
       }
@@ -106,5 +106,19 @@ const initializePassport = () => {
     }
   });
 };
+
+//CookieExtractor
+const cookieExtractor = (req) => {
+  const token = null;
+  console.log("Entrando a Cookie Extractor");
+  if (req && req.cookies) {
+    console.log("Cookies presentes: ");
+    console.log(req.cookies);
+    token = req.cookie['jwtCookieToken'];
+    console.log("Token obtenido desde Cookie: ");
+    console.log(token);
+  }
+  return token;
+}
 
 export default initializePassport;

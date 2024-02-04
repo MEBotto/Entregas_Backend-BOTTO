@@ -5,45 +5,8 @@ import cookieParser from "cookie-parser"
 
 const router = Router();
 
-//Sin firma 
-//router.use(cookieParser())
-
-//Con Firma 
-router.use(cookieParser('fhFo3g9K4j0cfR2'))
-
 router.get("/", (req, res) => {
     res.render("home.hbs")
-})
-
-router.get("/setCookie", (req, res) => {
-    //Sin Firma
-    //res.cookie('MarianoCookie', 'Esta es una cookie sin firma!!', { maxAge: 30000, }).send('Cookie asignada con éxito')
-
-    //Con Firma
-    res.cookie('MarianoCookie', 'Esta es una cookie sin firma!!', { maxAge: 30000, signed: true }).send('Cookie asignada con éxito')
-})
-
-router.get("/getCookie", (req, res) => {
-    //Sin Firma
-    //res.send(req.cookies)
-
-    //Con Firma
-    res.send(req.signedCookies)
-})
-
-router.get("/deleteCookie", (req, res) => {
-    //Sin Firma
-    res.clearCookie('MarianoCookie').send('Cookie borrada!!!')
-})
-
-router.get("/session", (req, res) => {
-    if(req.session.counter){    
-        req.session.counter++
-        res.send(`Se ha visitado este sitio ${req.session.counter} veces.`)
-    }else{
-        req.session.counter = 1
-        res.send('Bienvenido!!!')
-    }
 })
 
 router.get("/logout", (req, res) => {
@@ -62,7 +25,7 @@ router.get("/products", async (req, res) => {
 
     // Añade los datos del usuario a la renderización de la vista
     const userData = req.session.user;
-    console.log(req.session.user.rol)
+    console.log(req.session.user)
     const welcomeMessage = userData ? `¡Bienvenido, ${userData.name}!` : 'Bienvenido';
 
     res.render("products.hbs", { products, user: userData, welcomeMessage }, (err, html) => {

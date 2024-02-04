@@ -13,8 +13,10 @@ import sessionsRouter from "./routes/sessions.routes.js";
 import userViewRouter from "./routes/users.views.routes.js";
 import messageDao from "./daos/dbManager/message.dao.js";
 import githubLoginRouter from "./routes/github-login.views.routes.js"
+import jwtRouter from "./routes/jwt.routes.js"
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = 8080;
@@ -116,6 +118,7 @@ app.use(express.static(`${__dirname}/public`));
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/sessions", sessionsRouter);
+app.use("/api/jwt", jwtRouter);
 app.use("/users", userViewRouter);
 app.use("/github", githubLoginRouter);
 app.use("/", viewsRouter);

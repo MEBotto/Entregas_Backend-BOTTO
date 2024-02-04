@@ -6,8 +6,9 @@ const userSchema = new Schema({
   email: { type:String, unique:true, required: true },
   age: Number,
   password:String,
-  cart: { type: Schema.Types.ObjectId, ref: 'Carts' },
-  role: { type: String, default: 'user' },
+  loggedBy: String,
+  cart: { type: Array },
+  role: { type: String, default: 'user', enum: ['user', 'admin'] },
 })
 
 const userModel = model("users", userSchema)

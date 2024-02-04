@@ -1,6 +1,6 @@
 import { Router } from "express";
 import userModel from "../models/user.model.js";
-import { createHash, isValidPassword } from "../utils.js";
+import { createHash, generateJWToken, isValidPassword } from "../utils.js";
 import passport from "passport";
 
 const router = Router()
@@ -23,34 +23,23 @@ async (req, res) => {
 })
 //Register
 router.post('/register', passport.authenticate("register", {
-  failureRedirect: "api/session/fail-register"
-}), async (req,res)=>{
-
-res.send({status:"success", msg:"User created"})
-})
+    failureRedirect: "/api/session/fail-register",
+    successRedirect: "/api/session/success-register"
+  })
+);
 
 //Login
 router.post('/login', passport.authenticate("login", {
   failureRedirect: "api/session/fail-login"
 }), async (req,res) => {
-  let rol;
-  if(email == "adminCoder@coder.com" && password == "adminCod3r123"){
-      rol = "admin"
-  }
-  else{
-      rol = "user"
-  }
   const user = req.user;
-  rol = "user"
+  console.log(user);
 
-  req.session.user = {
-    name: `${user.first_name} ${user.last_name}`,
-    email: user.email,
-    age: user.age,
-    rol: rol
-  }
+  if(!user) return res.status(401).send({status:"error", error: "user and password don't match"})
+  const access_token = generateJWToken(user);
+  console.log(access_token);
 
-  res.send({status:'success', payload: req.session.user, message:'Log successful'})
+  res.send({ access_token: access_token });
 })
 
 router.get('/logout',  (req,res)=>{
@@ -62,6 +51,10 @@ router.get('/logout',  (req,res)=>{
 
 router.get("/fail-register", (req, res) => {
   res.status(401).send({error: "failed to process register"});
+})
+
+router.get("/success-register", (req, res) => {
+  res.status(200).send({error: "success to process register"});
 })
 
 router.get("/fail-login", (req, res) => {
