@@ -14,10 +14,8 @@ form.addEventListener('submit', e =>{
     }).then( result =>{
         if(result.status === 200){
             result.json().then(json => {
-                console.log("Cookies generadas: ");
-                console.log(document.cookie);
                 alert("Login realizado con exito!");
-                //window.location.replace('/users');
+                window.location.replace('/users');
             });
         } else if (result.status === 401) {
             console.log(result);

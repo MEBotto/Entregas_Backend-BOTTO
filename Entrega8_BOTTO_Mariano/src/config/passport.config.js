@@ -83,8 +83,6 @@ const initializePassport = () => {
     }, async (jwt_payload, done) => {
       console.log("Entrando a passport strategy con JWT");
       try {
-        console.log("JWT obtenido del Payload");
-        console.log(jwt_payload);
         return done(null, jwt_payload.user);
       } catch (error) {
         return done(error);
@@ -109,14 +107,9 @@ const initializePassport = () => {
 
 //CookieExtractor
 const cookieExtractor = (req) => {
-  const token = null;
-  console.log("Entrando a Cookie Extractor");
+  let token = null;
   if (req && req.cookies) {
-    console.log("Cookies presentes: ");
-    console.log(req.cookies);
-    token = req.cookie['jwtCookieToken'];
-    console.log("Token obtenido desde Cookie: ");
-    console.log(token);
+    token = req.cookies['jwtCookieToken'];
   }
   return token;
 }

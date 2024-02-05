@@ -88,6 +88,9 @@ io.on('connection', (socket) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+//Cookie Parser
+app.use(cookieParser());
+
 // Configuración de Handlebars
 const hbs = exphbs.create({
   runtimeOptions: {
