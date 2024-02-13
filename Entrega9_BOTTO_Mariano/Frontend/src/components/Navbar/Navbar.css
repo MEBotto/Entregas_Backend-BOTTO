@@ -1,0 +1,91 @@
+.container-navbar {
+  width: 100vw;
+  max-width: 100vw;
+  min-height: 10%;
+  display: flex;
+  align-items: center;
+}
+.navbar {
+  width: 100%;
+  display: flex;
+  max-width: 100vw;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 15px 5px 15px 7%;
+  transition: 0.5s;
+}
+.logo {
+  width: 160px;
+  cursor: pointer;
+}
+ul {
+  flex: 1;
+  list-style: none;
+  text-align: center;
+  margin: 0px
+}
+ul li {
+  display: inline-block;
+  margin: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+}
+.toggle-icon{
+  width: 50px;
+  cursor: pointer;
+  margin-left: 40px;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #242424;
+  padding: 10px 20px;
+  border-radius: 50px;
+}
+.search-box input {
+  padding: 6px;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: #fff;
+  font-size: 18px;
+  max-width: 200px;
+}
+.search-box input::placeholder {
+  color: #fff;
+}
+.search-box img {
+  width: 20px;
+  cursor: pointer;
+}
+.dark {
+  background: #000;
+  color: #fff;
+}
+.dark .search-box {
+  background: #fff;
+}
+.dark .search-box input {
+  color: #222;
+}
+.dark .search-box input::placeholder {
+  color: #222;
+}
+.loginRegister {
+  width: 10%;
+  height: 100%;
+  transition: 0.5s;
+}
+.loginRegister ul {
+  padding: 20px 10px;
+}
+.loginRegister li {
+  margin: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.dark .custom-navbar-toggle {
+  background-color: #fff;
+  border-color: #fff;
+}
