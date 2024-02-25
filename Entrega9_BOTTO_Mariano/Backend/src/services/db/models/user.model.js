@@ -9,6 +9,7 @@ const userSchema = new Schema({
   loggedBy: String,
   cart: { type: Array },
   role: { type: String, default: 'user', enum: ['user', 'admin'] },
+  photo: { type: String, default: 'https://i.imgur.com/6tqjCI3.png', required: true }
 })
 
 const userModel = model("users", userSchema)

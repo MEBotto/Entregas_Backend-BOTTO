@@ -7,20 +7,31 @@ export default class UserExtendRouter extends CustomRouter {
   init(){
     const userService = new UserService();
 
-    this.get('/', ["USER", "USER_PREMIUN"], (req, res) => {
-      res.send("Hola Coders!")
+    this.get('/profile', ["USER", "USER_PREMIUN", "ADMIN"], (req, res) => {
+      res.sendSuccess(req.user) 
     });
 
     this.get('/currentUser', ["USER", "USER_PREMIUN"], (req, res) => { 
       res.sendSuccess(req.user) 
     });
 
-    this.get('/premiunUser', ["USER_PREMIUN"], (req, res) => {
+    this.get('/premiun', ["USER_PREMIUN"], (req, res) => {
       res.sendSuccess(req.user);
     });
 
-    this.get('/adminUser', ["ADMIN"], (req, res) => {
+    this.get('/admin', ["ADMIN"], (req, res) => {
       res.sendSuccess(req.user);
+    });
+
+    this.get('/admin/getUsers', ['ADMIN'], async (req, res) => {
+      try {
+        const userService = new UserService();
+        const allUsers = await userService.getAllUsers();
+        res.sendSuccess(allUsers);
+      } catch (error) {
+        console.error(error);
+        res.sendInternalServerError("Error fetching all users");
+      }
     });
 
     this.post('/login', ["PUBLIC"], async (req, res) => {
@@ -42,15 +53,12 @@ export default class UserExtendRouter extends CustomRouter {
           name: `${user.first_name} ${user.last_name}`,
           email: user.email,
           age: user.age,
-          role: user.role
+          role: user.role,
+          photo: user.photo
         };
 
         const access_token = generateJWToken(tokenUser);
-
-        res.cookie("jwtCookieToken", access_token, { 
-          maxAge: 600000,
-          httpOnly: true
-        }).send({ message: "Login success!!" });
+        res.status(200).send({ message: "Login successful!", access_token: access_token, id: user._id, payload: tokenUser });
       } catch (error) {
         console.error(error);
         return res.status(500).send({ status: "error", error: "Internal server error." });

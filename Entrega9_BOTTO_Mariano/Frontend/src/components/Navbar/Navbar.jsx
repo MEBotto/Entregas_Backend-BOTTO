@@ -1,47 +1,73 @@
-import './Navbar.css'
-import Container from 'react-bootstrap/Container';
-import Navbar from 'react-bootstrap/Navbar';
-import logo_light from '../../assets/logo-black.png'
-import logo_dark from '../../assets/logo-white.png'
-import search_icon_light from '../../assets/search-w.png'
-import search_icon_dark from '../../assets/search-b.png'
-import toogle_light from '../../assets/night.png'
-import toogle_dark from '../../assets/day.png'
-import cart_light from '../../assets/cart-b.png'
-import cart_dark from '../../assets/cart-w.png'
+import './Navbar.css';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
+import React, { useEffect } from 'react';
 
 function NavbarExport({ theme, setTheme }) {
+  const { token, logout, user } = useAuth();
+  const navigate = useNavigate();
 
-  const toogle_mode = () => {
-    theme === 'light' ? setTheme('dark') : setTheme('light')
+  const toggleMode = () => {
+    theme === 'light' ? setTheme('dark') : setTheme('light');
+  };
+
+  useEffect(() => {
+    console.log('Token:', token);
+    console.log(user);
+  }, [token]);
+
+  const menuOnClick = () => {
+    let menu = document.querySelector('#menu-icon')
+    let navbar = document.querySelector('.navbar')
+
+    menu.classList.toggle('bx-x')
+    navbar.classList.toggle('open')
   }
 
-  return (
-    <Navbar expand="lg" className={`${theme}`}>
-      <Container className='container-navbar'>
-        <img src={theme === 'light' ? logo_light : logo_dark} className='logo'/>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" className='custom-navbar-toggle'/>
-        <Navbar.Collapse id="basic-navbar-nav">
-          <ul>
-            <li>Products</li>
-            <li>Profile</li>
-          </ul>
-          <div className='search-box'>
-            <input type="text" placeholder='Search'/>
-            <img src={theme === 'light' ? search_icon_light : search_icon_dark}/>
-          </div>
-          <img src={theme === 'light' ? cart_light : cart_dark} className='toggle-icon' />
-          <img onClick={() => {toogle_mode()}} src={theme === 'light' ? toogle_light : toogle_dark} className='toggle-icon' />
+  const handleLogout = () => {
+    logout();
+    navigate('/products');
+  };
 
-          <div className='loginRegister'>
-            <ul>
-              <li>Login</li>
-              <li>Register</li>
-            </ul> 
-          </div>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+  return (
+    <header className={`${theme}`}>
+        <a href='#' className='logo'><i className="ri-home-smile-fill"/><span>Logo</span></a>
+        <ul className='navbar'>
+          <li className='active'><Link to='/'>Home</Link></li>
+          <li><Link to='/products'>Manga</Link></li>
+          <li><a href='#'>Comics</a></li>
+          <li><a href='#'>Contact</a></li>
+          {user?.role ? (
+            user.role === 'admin' ? (
+            <li><Link to='/admin'>Admin Panel</Link></li>
+            ) : (
+            <></>
+            )
+          ) : (
+            <></>
+          )}
+        </ul>
+        <div className='main'>
+          {token ? (
+            <>
+              <Link to='/profile' className='user'>
+                <img src={user.photo} alt={`Foto de ${user.name}`} style={{width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px'}}/>
+                {user.name}
+              </Link>
+              <Link onClick={handleLogout}><i className="ri-logout-box-line" style={{fontSize: '32px'}}/></Link>
+            </>
+          ) : (
+            <>
+              <Link className='user' to={'/login'}>
+                <i className="ri-user-fill" />Sign In
+              </Link>
+              <Link to={'/register'}>Register</Link>
+            </>
+          )}
+          {theme === 'light' ? <div className='theme' onClick={toggleMode}><i className="ri-sun-fill" style={{marginRight: '10px'}}/></div> : <div className='theme' onClick={toggleMode}><i className="ri-moon-fill" style={{marginRight: '10px'}}/></div>}
+          <div onClick={menuOnClick} className='bx bx-menu' id='menu-icon'></div>
+        </div>
+    </header>
   );
 }
 

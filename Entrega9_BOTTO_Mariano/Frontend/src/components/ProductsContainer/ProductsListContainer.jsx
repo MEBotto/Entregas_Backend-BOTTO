@@ -1,43 +1,81 @@
+import './ProductsListContainer.css'
 import React from 'react'
 import ProductsList from './ProductsList/ProductsList.jsx'
 import { useState, useEffect } from 'react';
 
-const ProductsListContainer = () => {
+const ProductsListContainer = ({ theme }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
 
   useEffect(() => {
-    // Función asincrónica para hacer la solicitud GET
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/products');
+        const response = await fetch(`http://localhost:8080/api/products?limit=${limit}&page=${page}`);
         if (!response.ok) {
           throw new Error('Error al obtener los datos');
         }
 
         const data = await response.json();
         setProducts(data.data);
-        setLoading(false); // Cambia el estado de loading a false cuando los datos están listos
+        setTotalPages(data.totalPages);
+        setLoading(false);
+        console.log(data)
       } catch (error) {
         console.error('Error:', error.message);
-        setLoading(false); // También cambia el estado de loading a false en caso de error
+        setLoading(false);
       }
     };
 
-    // Llamada a la función para obtener los datos cuando el componente se monta
     fetchData();
-  }, []); // La dependencia vacía asegura que esto solo se ejecute una vez al montar el componente
+  }, [page, limit]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
+
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+
+    for (let i = 1; i <= products.totalPages; i++) {
+      pageNumbers.push(
+        <button key={i} onClick={() => handlePageChange(setPage(i))} className={i === page ? 'active' : ''}>
+          {i}
+        </button>
+      );
+    }
+
+    console.log(pageNumbers)
+
+    return pageNumbers;
+  };
 
   return (
-    <div className='container mt-5'>
-      {loading ? (
-        <p>Cargando...</p> // Muestra un mensaje de carga mientras se obtienen los datos
-      ) : (
-        <div className="row row-cols-4 g-4">
-          <ProductsList products={products.docs} />
-        </div>
-      )}
-    </div>
+    <>
+      <div className={`main-container ${theme}`}>
+        {loading ? (
+          <p>Cargando...</p> // Muestra un mensaje de carga mientras se obtienen los datos
+        ) : (
+          <>
+            <ProductsList products={products.docs} />
+          </>
+        )}
+      </div>
+      <div className={`pagination ${theme}`}>
+        <button onClick={() => handlePageChange(setPage(page - 1))} style={{ visibility: page === 1 ? 'hidden' : 'visible' }}>
+          <i className="ri-arrow-left-s-line"></i>
+        </button>
+        {renderPageNumbers()}
+        <button onClick={() => handlePageChange(setPage(page + 1))} style={{ visibility: page === products.totalPages ? 'hidden' : 'visible' }}>
+          <i className="ri-arrow-right-s-line"></i>
+        </button>
+      </div>
+  </>
+
   )
 }
 
